@@ -16,7 +16,7 @@ Any future expansions to the app will keep the goal of being unobtrusive and max
 
 ## Installation
 
-### Prerequisites
+### Development Setup
 
 Run the following commands to install the app locally:
 
