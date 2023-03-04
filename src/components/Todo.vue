@@ -131,7 +131,7 @@
           input field and hit enter.
         </p>
 
-        <p>
+        <p class="mb-0">
           To add a category to your to-do task, simply add a colon (<code>:</code>) after the
           category name, followed by a space, and then type in the task name.
           For example, if you want to add a task with the category "work", you
