@@ -16,7 +16,9 @@ Any future expansions to the app will keep the goal of being unobtrusive and max
 
 ## Installation
 
-The app is built using Vue.js and can be run locally using the Vue CLI. To install the Vue CLI, run the following command:
+### Prerequisites
+
+Run the following commands to install the app locally:
 
 ```bash
 git clone git@github.com:meinar/vue3-todo.git
