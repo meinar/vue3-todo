@@ -2,7 +2,7 @@
   <div class="container py-5">
     <h1 class="display-4">Todo List</h1>
     <p class="lead mb-4">
-      A simple todo list app built with Vue 3 and Bootstrap 5.
+      A simple todo app aiming to be as unobtrusive as possible, allowing you to focus on your tasks and be as productive as possible.
     </p>
     <div class="input-group mb-3">
       <input
