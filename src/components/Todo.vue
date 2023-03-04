@@ -128,18 +128,15 @@
       <div class="card-body">
         <p>
           To add a regular to-do task to the app, simply type the task into the
-          input field and hit enter. The task will be added to your to-do list
-          and will be visible on the main page.
+          input field and hit enter.
         </p>
 
         <p>
-          To add a category to your to-do task, simply add a colon (:) after the
+          To add a category to your to-do task, simply add a colon (<code>:</code>) after the
           category name, followed by a space, and then type in the task name.
           For example, if you want to add a task with the category "work", you
           would type "work: task name" into the input field and hit enter. The
-          task will be added to your to-do list with the specified category, and
-          you can view your categorized tasks by clicking on the corresponding
-          category button at the top of the page.
+          task will be added to the to-do list with the category "work".
         </p>
       </div>
     </div>
