@@ -13,7 +13,9 @@
         @keydown.enter="addTask"
         ref="newTaskInput"
       />
-      <button class="btn btn-primary btn-lg" @click="addTask">Add</button>
+      <button class="btn btn-primary btn-lg" @click="addTask">
+        Add new task
+      </button>
     </div>
     <div class="tasks mt-4">
       <div
@@ -24,7 +26,7 @@
         @dragstart="dragStartHandler(index)"
         @dragover.prevent
         @drop="dropHandler(index)"
-        :class="{'task--completed': task.completed}"
+        :class="{ 'task--completed': task.completed }"
       >
         <div class="card-body p-0">
           <div class="row">
@@ -78,7 +80,11 @@
     </div>
     <div class="buttons mt-3 d-flex">
       <!-- button to download backup -->
-      <button class="btn btn-primary me-2" @click="downloadBackup" :disabled="!state.tasks.length">
+      <button
+        class="btn btn-primary me-2"
+        @click="downloadBackup"
+        :disabled="!state.tasks.length"
+      >
         Download Backup
       </button>
 
@@ -95,9 +101,7 @@
 
     <div class="card mt-5">
       <div class="card-header">
-        <h2 class="card-title h4 mb-0">
-          How it works
-        </h2>
+        <h2 class="card-title h4 mb-0">How it works</h2>
       </div>
       <div class="card-body">
         <p class="mb-0">
@@ -108,15 +112,15 @@
             rel="noopener noreferrer"
             class="text-decoration-none"
             >Vue.js</a
-          >, a popular JavaScript framework for building user interfaces. Users can
-          create new tasks, mark them as completed, and delete them as needed. Tasks
-          are stored locally using the browser's <code>localStorage</code> API, so
-          they persist across page refreshes. The app also allows users to drag and
-          drop tasks to reorder them, and it includes a
-          <em>"Clear Completed"</em> button to remove all completed tasks from the
-          list. Additionally, the app includes import/export functionality, allowing
-          users to save their task list as a JSON file or load a previously saved
-          list into the app.
+          >, a popular JavaScript framework for building user interfaces. Users
+          can create new tasks, mark them as completed, and delete them as
+          needed. Tasks are stored locally using the browser's
+          <code>localStorage</code> API, so they persist across page refreshes.
+          The app also allows users to drag and drop tasks to reorder them, and
+          it includes a <em>"Clear Completed"</em> button to remove all
+          completed tasks from the list. Additionally, the app includes
+          import/export functionality, allowing users to save their task list as
+          a JSON file or load a previously saved list into the app.
         </p>
       </div>
     </div>
@@ -269,13 +273,13 @@ watch(
 
   &:hover {
     &:after {
-      content: '';
+      content: "";
       position: absolute;
       left: 0;
       top: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0,0,0, 0.025);
+      background-color: rgba(0, 0, 0, 0.025);
     }
   }
 }
