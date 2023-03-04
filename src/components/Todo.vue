@@ -180,8 +180,9 @@ const localStorage = window.localStorage;
 // function to get a new task object
 const createTask = (task) => {
   // everything before : is the category
-  const category = task.split(":")[0].trim();
-  const title = task.split(":")[1].trim();
+  // check if there is a : in the task
+  const category = task.includes(":") ? task.split(":")[0].trim() : null;
+  const title = task.includes(":") ? task.split(":")[1].trim() : task;
 
   return {
     title,
