@@ -14,9 +14,25 @@
         @keyup.enter="addTask"
         ref="newTaskInput"
       />
-      <button class="btn btn-primary btn-lg" @click="addTask" :disabled="!state.newTaskInput">
+      <button
+        class="btn btn-primary btn-lg"
+        @click="addTask"
+        :disabled="!state.newTaskInput"
+      >
         Add
       </button>
+    </div>
+    <!-- small text -->
+    <div v-if="categories.length" class="categories">
+      <!-- todo: add categories filter -->
+      Categories:
+      <span
+        class="category badge bg-primary me-2"
+        v-for="(category, index) in categories"
+        :key="index"
+      >
+        {{ category }}
+      </span>
     </div>
     <div class="tasks mt-4">
       <div
@@ -59,10 +75,14 @@
                     v-model="task.completed"
                   />
                   <label
-                    class="form-check-label ms-2"
+                    class="form-check-label ms-2 d-block"
                     :class="{ completed: task.completed }"
                   >
                     {{ task.title }}
+
+                    <span v-if="task.category" class="badge bg-primary ms-2">
+                      {{ task.category }}
+                    </span>
                   </label>
                 </div>
               </div>
@@ -80,7 +100,7 @@
         </div>
       </div>
     </div>
-    <div class="buttons mt-3 d-flex">
+    <div class="buttons mt-3 mb-5 d-flex">
       <!-- button to download backup -->
       <button
         class="btn btn-primary me-2"
@@ -101,7 +121,30 @@
       </button>
     </div>
 
-    <div class="card mt-5">
+    <div class="card my-3">
+      <div class="card-header">
+        <h2 class="card-title h4 mb-0">How to use</h2>
+      </div>
+      <div class="card-body">
+        <p>
+          To add a regular to-do task to the app, simply type the task into the
+          input field and hit enter. The task will be added to your to-do list
+          and will be visible on the main page.
+        </p>
+
+        <p>
+          To add a category to your to-do task, simply add a colon (:) after the
+          category name, followed by a space, and then type in the task name.
+          For example, if you want to add a task with the category "work", you
+          would type "work: task name" into the input field and hit enter. The
+          task will be added to your to-do list with the specified category, and
+          you can view your categorized tasks by clicking on the corresponding
+          category button at the top of the page.
+        </p>
+      </div>
+    </div>
+
+    <div class="card my-3">
       <div class="card-header">
         <h2 class="card-title h4 mb-0">How it works</h2>
       </div>
@@ -130,18 +173,32 @@
 </template>
 
 <script setup>
-import { reactive, watch, onMounted, ref, inject } from "vue";
-import debounce from 'lodash/debounce';
+import { reactive, watch, onMounted, ref, inject, computed } from "vue";
+import debounce from "lodash/debounce";
 
 const limit = (fn) => debounce(fn, 1500, { leading: true, trailing: false });
-const toast = inject('toast');
+const toast = inject("toast");
 const localStorage = window.localStorage;
 
 // function to get a new task object
-const createTask = (title) => ({
-  title,
-  completed: false,
-  createdAt: new Date().toISOString(),
+const createTask = (task) => {
+  // everything before : is the category
+  const category = task.split(":")[0].trim();
+  const title = task.split(":")[1].trim();
+
+  return {
+    title,
+    completed: false,
+    createdAt: new Date().toISOString(),
+    category,
+  };
+};
+
+const categories = computed(() => {
+  const categories = state.tasks
+    .map((task) => task.category)
+    .filter((categroy) => categroy);
+  return [...new Set(categories)];
 });
 
 const state = reactive({
