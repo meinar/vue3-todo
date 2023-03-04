@@ -11,10 +11,11 @@
         placeholder="Add a new task"
         v-model="state.newTaskInput"
         @keydown.enter="addTask"
+        @keyup.enter="addTask"
         ref="newTaskInput"
       />
-      <button class="btn btn-primary btn-lg" @click="addTask">
-        Add new task
+      <button class="btn btn-primary btn-lg" @click="addTask" :disabled="!state.newTaskInput">
+        Add
       </button>
     </div>
     <div class="tasks mt-4">
@@ -49,6 +50,7 @@
               <div
                 class="form-check__wrapper p-3 flex-grow-1"
                 @click="task.completed = !task.completed"
+                :title="`Created at ${dateIsoStringToDate(task.createdAt)}`"
               >
                 <div class="form-check">
                   <input
@@ -128,29 +130,64 @@
 </template>
 
 <script setup>
-import { reactive, watch, onMounted, ref } from "vue";
+import { reactive, watch, onMounted, ref, inject } from "vue";
+import debounce from 'lodash/debounce';
 
+const limit = (fn) => debounce(fn, 1500, { leading: true, trailing: false });
+const toast = inject('toast');
 const localStorage = window.localStorage;
+
+// function to get a new task object
+const createTask = (title) => ({
+  title,
+  completed: false,
+  createdAt: new Date().toISOString(),
+});
 
 const state = reactive({
   newTaskInput: "",
   tasks: JSON.parse(localStorage.getItem("tasks")) || [],
 });
 
-const addTask = () => {
-  state.tasks.push({
-    title: state.newTaskInput,
-    completed: false,
-  });
-  state.newTaskInput = "";
+// uses browser's locale to format date and time
+const dateIsoStringToDate = (dateString) => {
+  const dateObject = new Date(dateString);
+  const time = dateObject.toLocaleTimeString();
+  const date = dateObject.toLocaleDateString();
+
+  return `${date} ${time}`;
 };
+
+const addTask = limit(() => {
+  if (!state.newTaskInput) {
+    return;
+  }
+
+  // check if task already exists, ignore case
+  const taskExists = state.tasks.some(
+    (task) => task.title.toLowerCase() === state.newTaskInput.toLowerCase()
+  );
+
+  if (taskExists) {
+    toast.warning("Task already exists");
+    return;
+  }
+
+  state.tasks.push(createTask(state.newTaskInput));
+  state.newTaskInput = "";
+
+  // toast success message
+  toast.success("Task added successfully");
+});
 
 const deleteTask = (index) => {
   state.tasks.splice(index, 1);
+  toast.success("Task deleted successfully");
 };
 
 const clearCompleted = () => {
   state.tasks = state.tasks.filter((task) => !task.completed);
+  toast.success("All completed tasks deleted successfully");
 };
 
 const saveTasks = () => {
@@ -180,6 +217,8 @@ const downloadBackup = () => {
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+
+  toast.success("Backup downloaded successfully");
 };
 
 const mergeTasks = (tasks) => {
@@ -227,6 +266,8 @@ const uploadBackup = () => {
     reader.readAsText(file);
   };
   input.click();
+
+  toast.success("Backup uploaded successfully");
 };
 
 const newTaskInput = ref(null);
@@ -259,8 +300,7 @@ watch(
   position: relative;
 
   &--completed {
-    color: grey;
-    background-color: #f3f3f3;
+    opacity: 0.5;
   }
 }
 
@@ -279,7 +319,7 @@ watch(
       top: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.025);
+      background-color: rgba(0, 0, 0, 0.03);
     }
   }
 }
