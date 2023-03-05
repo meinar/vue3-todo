@@ -14,7 +14,12 @@ export default defineConfig({
         theme_color: '#ffffff',
 
       },
-      workbox: {},
+      workbox: {
+        // generate new revision for index.html on every build
+        globPatterns: ['**/*.{js,css,html}'],
+        globDirectory: 'dist',
+        globIgnores: ['**/node_modules/**/*'],
+      },
       devOptions: {
         enabled: true,
         type: 'module',
