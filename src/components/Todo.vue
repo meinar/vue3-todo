@@ -22,9 +22,8 @@
         Add
       </button>
     </div>
-    <!-- small text -->
+
     <div v-if="categories.length" class="categories">
-      <!-- todo: add categories filter -->
       Categories:
       <span
         class="category badge bg-primary me-2"
@@ -103,7 +102,6 @@
     <div class="buttons mt-3 mb-5 d-flex">
 
       <div class="btn-group btn-group-sm" role="group">
-        <!-- button to download backup -->
         <button
           class="btn btn-outline-primary"
           @click="downloadBackup"
@@ -113,14 +111,12 @@
           Download Backup
         </button>
 
-        <!-- button to upload backup -->
         <button class="btn btn-outline-primary" @click="uploadBackup">
           <i class="bi bi-upload me-1" />
           Upload Backup
         </button>
       </div>
 
-      <!-- button to clear completed tasks -->
       <button class="btn btn-danger ms-auto" @click="clearCompleted">
         <i class="bi bi-trash3-fill me-1" />
         Clear Completed
@@ -183,10 +179,8 @@ const limit = (fn) => debounce(fn, 1500, { leading: true, trailing: false });
 const toast = inject("toast");
 const localStorage = window.localStorage;
 
-// function to get a new task object
 const createTask = (task) => {
   // everything before : is the category
-  // check if there is a : in the task
   const category = task.includes(":") ? task.split(":")[0].trim() : null;
   const title = task.includes(":") ? task.split(":")[1].trim() : task;
 
@@ -237,7 +231,6 @@ const addTask = limit(() => {
   state.tasks.push(createTask(state.newTaskInput));
   state.newTaskInput = "";
 
-  // toast success message
   toast.success("Task added successfully");
 });
 
