@@ -101,22 +101,28 @@
       </div>
     </div>
     <div class="buttons mt-3 mb-5 d-flex">
-      <!-- button to download backup -->
-      <button
-        class="btn btn-primary me-2"
-        @click="downloadBackup"
-        :disabled="!state.tasks.length"
-      >
-        Download Backup
-      </button>
 
-      <!-- button to upload backup -->
-      <button class="btn btn-primary" @click="uploadBackup">
-        Upload Backup
-      </button>
+      <div class="btn-group btn-group-sm" role="group">
+        <!-- button to download backup -->
+        <button
+          class="btn btn-outline-primary"
+          @click="downloadBackup"
+          :disabled="!state.tasks.length"
+        >
+          <i class="bi bi-download me-1" />
+          Download Backup
+        </button>
+
+        <!-- button to upload backup -->
+        <button class="btn btn-outline-primary" @click="uploadBackup">
+          <i class="bi bi-upload me-1" />
+          Upload Backup
+        </button>
+      </div>
 
       <!-- button to clear completed tasks -->
       <button class="btn btn-danger ms-auto" @click="clearCompleted">
+        <i class="bi bi-trash3-fill me-1" />
         Clear Completed
       </button>
     </div>
