@@ -79,7 +79,14 @@
                   >
                     {{ task.title }}
 
-                    <span v-if="task.category" class="badge bg-primary ms-2">
+                    <template v-if="task.categories">
+                      <span v-for="(category, index) in task.categories" :key="index" class="badge bg-primary ms-2">
+                        {{ category }}
+                      </span>
+                    </template>
+
+                    <!-- legacy support -->
+                    <span v-else-if="task.category" class="badge bg-primary ms-2">
                       {{ task.category }}
                     </span>
                   </label>
@@ -184,18 +191,24 @@ const createTask = (task) => {
   const category = task.includes(":") ? task.split(":")[0].trim() : null;
   const title = task.includes(":") ? task.split(":")[1].trim() : task;
 
+  // split category by pipe and trim whitespace
+  const categories = category
+    ? category.split("|").map((category) => category.trim()).filter((category) => category)
+    : [];
+
   return {
     title,
     completed: false,
     createdAt: new Date().toISOString(),
-    category,
+    categories: [ ...new Set(categories) ],
   };
 };
 
 const categories = computed(() => {
   const categories = state.tasks
-    .map((task) => task.category)
-    .filter((categroy) => categroy);
+    .map((task) => task.categories ?? task.category)
+    .flat()
+    .filter((category) => category)
   return [...new Set(categories)];
 });
 
