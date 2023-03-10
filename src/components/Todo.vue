@@ -4,7 +4,7 @@
     <p class="lead mb-4">
       A simple todo app aiming to be as unobtrusive as possible, allowing you to focus on your tasks and be as productive as possible.
     </p>
-    <div class="input-group mb-3">
+    <div class="input-group mb-2">
       <input
         type="text"
         class="form-control form-control-lg"
@@ -23,23 +23,74 @@
       </button>
     </div>
 
-    <div v-if="categories.length" class="categories">
-      <span
-        class="category badge bg-primary me-2"
-        v-for="(category, index) in categories"
-        :key="index"
-      >
-        <span class="category__name">{{ category.name }}</span>
-        &nbsp;
-        <span class="category__count text-muted">
-          {{ category.completed }} / {{ category.count }}
-        </span>
-      </span>
+    <div class="row mt-2">
+      <div class="col">
+        <div class="filters row">
+          <div class="col col-auto">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="filterOpen"
+                v-model="filters.open"
+                @change="filters.completed = false"
+                :disabled="!hasOpenTasks"
+              />
+              <label class="form-check-label" for="filterOpen">
+                Filter by open tasks
+              </label>
+            </div>
+          </div>
+          <div class="col col-auto">
+            <div class="form-check form-switch col">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="filterCompleted"
+                v-model="filters.completed"
+                @change="filters.open = false"
+                :disabled="!hasCompletedTasks"
+              />
+              <label class="form-check-label" for="filterCompleted">
+                Filter by completed tasks
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col col-auto">
+        <a href="#" @click="resetFilters">
+          {{ filtersActive ? 'Reset filters' : '' }}
+        </a>
+      </div>
     </div>
+
+    <div v-if="categories.length" class="categories mt-2">
+        <span
+          class="category badge bg-primary me-2"
+          v-for="(category, index) in categories"
+          :key="index"
+          @click="filterByCategory(category.name)"
+        >
+          <input
+            type="checkbox"
+            class="form-check-input"
+            :checked="category.filtering"
+          />
+          &nbsp;
+          <span class="category__name">{{ category.name }}</span>
+          &nbsp;
+          <span class="category__count text-muted">
+            {{ category.completed }} / {{ category.count }}
+          </span>
+        </span>
+      </div>
+
     <div class="tasks mt-4">
       <div
         class="card task mb-3"
-        v-for="(task, index) in state.tasks"
+        v-for="(task, index) in filteredTasks"
         :key="index"
         :draggable="true"
         @dragstart="dragStartHandler(index)"
@@ -87,11 +138,6 @@
                         {{ category }}
                       </span>
                     </template>
-
-                    <!-- legacy support -->
-                    <span v-else-if="task.category" class="badge bg-primary ms-2">
-                      {{ task.category }}
-                    </span>
                   </label>
                 </div>
               </div>
@@ -127,7 +173,7 @@
         </button>
       </div>
 
-      <button class="btn btn-danger ms-auto" @click="clearCompleted">
+      <button class="btn btn-danger ms-auto" @click="clearCompleted" :disabled="!hasCompletedTasks">
         <i class="bi bi-trash3-fill me-1" />
         Clear Completed
       </button>
@@ -207,22 +253,32 @@ const createTask = (task) => {
   };
 };
 
+// object with different filters, example: categories, open, completed
+const filters = ref({
+  categories: [],
+  open: false,
+  completed: false,
+});
+
+
 const categories = computed(() => {
   const categories = state.tasks
     .map((task) => task.categories ?? task.category)
     .flat()
     .filter((category) => category)
     .map((category) => {
-      const tasks = state.tasks.filter((task) => task.categories?.includes(category) || task.category === category);
+      const tasks = state.tasks.filter((task) => task.categories?.includes(category));
       const count = tasks.length;
       const open = tasks.filter((task) => !task.completed).length;
       const completed = tasks.filter((task) => task.completed).length;
+      const filtering = filters.value.categories.includes(category);
 
       return {
         name: category,
         count,
         open,
         completed,
+        filtering,
       };
     })
 
@@ -360,10 +416,92 @@ const uploadBackup = () => {
 
 const newTaskInput = ref(null);
 
+const filteredTasks = computed(() => {
+  let tasks = state.tasks;
+
+  // filter by categories
+  if (filters.value.categories.length) {
+    tasks = tasks.filter((task) => {
+      return task.categories?.some((category) =>
+        filters.value.categories.includes(category)
+      );
+    });
+  }
+
+  // filter by open/completed
+  if (filters.value.open) {
+    tasks = tasks.filter((task) => !task.completed);
+  } else if (filters.value.completed) {
+    tasks = tasks.filter((task) => task.completed);
+  }
+
+  // move completed tasks to the bottom
+  tasks.sort((a, b) => {
+    if (a.completed && !b.completed) {
+      return 1;
+    } else if (!a.completed && b.completed) {
+      return -1;
+    } else {
+      return 0;
+    }
+  });
+
+  return tasks;
+});
+
+const filterByCategory = (category) => {
+  if (filters.value.categories.includes(category)) {
+    filters.value.categories = filters.value.categories.filter(
+      (c) => c !== category
+    );
+  } else {
+    filters.value.categories.push(category);
+  }
+};
+
+const filtersActive = computed(() => {
+  return (
+    filters.value.categories.length ||
+    filters.value.open ||
+    filters.value.completed
+  );
+});
+
+const resetFilters = () => {
+  filters.value.categories = [];
+  filters.value.open = false;
+  filters.value.completed = false;
+};
+
+const hasOpenTasks = computed(() => {
+  return state.tasks.some((task) => !task.completed);
+});
+
+const hasCompletedTasks = computed(() => {
+  return state.tasks.some((task) => task.completed);
+});
+
 onMounted(() => {
   state.newTaskInput = "";
   newTaskInput.value.focus();
 });
+
+// disable filters when no tasks are present
+watch(
+  () => state.tasks,
+  () => {
+    // if no open tasks are present, disable open filter
+    if (!hasOpenTasks.value) {
+      filters.value.open = false;
+    }
+
+    // if no completed tasks are present, disable completed filter
+    if (!hasCompletedTasks.value) {
+      filters.value.completed = false;
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 watch(
   () => state.tasks,
@@ -409,6 +547,18 @@ watch(
       bottom: 0;
       background-color: rgba(0, 0, 0, 0.03);
     }
+  }
+}
+
+.filters {
+  user-select: none;
+}
+.category {
+  cursor: pointer;
+  user-select: none;
+  .form-check-input {
+    pointer-events: none;
+    transform: translateY(-1px);
   }
 }
 </style>
