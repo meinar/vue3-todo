@@ -24,13 +24,16 @@
     </div>
 
     <div v-if="categories.length" class="categories">
-      Categories:
       <span
         class="category badge bg-primary me-2"
         v-for="(category, index) in categories"
         :key="index"
       >
-        {{ category }}
+        <span class="category__name">{{ category.name }}</span>
+        &nbsp;
+        <span class="category__count text-muted">
+          {{ category.completed }} / {{ category.count }}
+        </span>
       </span>
     </div>
     <div class="tasks mt-4">
@@ -209,7 +212,25 @@ const categories = computed(() => {
     .map((task) => task.categories ?? task.category)
     .flat()
     .filter((category) => category)
-  return [...new Set(categories)];
+    .map((category) => {
+      const tasks = state.tasks.filter((task) => task.categories?.includes(category) || task.category === category);
+      const count = tasks.length;
+      const open = tasks.filter((task) => !task.completed).length;
+      const completed = tasks.filter((task) => task.completed).length;
+
+      return {
+        name: category,
+        count,
+        open,
+        completed,
+      };
+    })
+
+    // remove duplicates
+    .filter((category, index, self) => self.findIndex((c) => c.name === category.name) === index)
+    // .sort((a, b) => b.count - a.count); // maybe sort by count later
+
+  return categories;
 });
 
 const state = reactive({
