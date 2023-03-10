@@ -65,10 +65,6 @@ function setTheme(value) {
   }
 }
 
-function showActiveTheme(value) {
-  // Do nothing in Vue 3 as we're using a ref instead of updating a DOM element
-}
-
 window
   .matchMedia("(prefers-color-scheme: dark)")
   .addEventListener("change", () => {
